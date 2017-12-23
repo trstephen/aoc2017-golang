@@ -7,21 +7,22 @@ import (
 
 func main() {
 	captchas := []string{
-		"1122",
-		"1111",
-		"1234",
-		"918181819",
+		"1212",
+		"123123",
+		"1221",
+		"123425",
+		"12131415",
 	}
 
 	fmt.Println("  Captcha  ->   Solved")
 	fmt.Println("==========================")
 
 	for _, c := range captchas {
-		fmt.Printf("%10s -> %10s\n", c, solveCaptcha(c))
+		fmt.Printf("%10s -> %7s\n", c, solveCaptchaPart2(c))
 	}
 }
 
-func solveCaptcha(s string) string {
+func solveCaptchaPart1(s string) string {
 	var prev, curr int
 	acc := 0
 
@@ -42,6 +43,22 @@ func solveCaptcha(s string) string {
 				acc += curr
 			}
 			prev = curr
+		}
+	}
+
+	return strconv.Itoa(acc)
+}
+
+func solveCaptchaPart2(s string) string {
+	// Assume no funny business with extremely long or short captchas.
+	// Also, all captures are guaranteed to be even length. lol.
+
+	acc := 0
+	lookahead := len(s) / 2
+
+	for i, ch := range s {
+		if byte(ch) == s[(i+lookahead)%len(s)] {
+			acc += (int(ch) - '0')
 		}
 	}
 
