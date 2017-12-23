@@ -22,6 +22,9 @@ For example:
 - `1234` produces `0` because no digit matches the next.
 - `91212129` produces `9` because the only digit that matches the next one is the last digit, `9`.
 
+#### Solution
+`1047`
+
 ## Part 2
 
 You notice a progress bar that jumps to 50% completion. Apparently, the door isn't yet satisfied, but it did emit a star as encouragement. The instructions change:
@@ -35,3 +38,6 @@ For example:
 - `123425` produces `4`, because both `2`s match each other, but no other digit has a match.
 - `123123` produces `12`.
 - `12131415` produces `4`.
+
+#### Solution
+`982`
