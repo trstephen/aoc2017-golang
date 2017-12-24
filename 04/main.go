@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -24,8 +25,14 @@ func validatePassword(s string) int {
 	wordFreq := make(map[string]int)
 
 	for _, word := range words {
-		if _, found := wordFreq[word]; !found {
-			wordFreq[word] = 1
+		// For part 2 but still works with part 1
+		// e.g. adec -> acde
+		letters := strings.Split(word, "")
+		sort.Strings(letters)
+		sortedWord := strings.Join(letters, "")
+
+		if _, found := wordFreq[sortedWord]; !found {
+			wordFreq[sortedWord] = 1
 		} else {
 			return 0
 		}
