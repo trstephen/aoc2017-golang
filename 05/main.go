@@ -26,7 +26,14 @@ func countStepsToEscape(instructions []int) int {
 	for {
 		stepCount++
 		nextPosn := posn + instructions[posn]
-		instructions[posn] = instructions[posn] + 1
+
+		var instructionChange int
+		if instructions[posn] >= 3 {
+			instructionChange = -1
+		} else {
+			instructionChange = 1
+		}
+		instructions[posn] = instructions[posn] + instructionChange
 
 		if nextPosn >= len(instructions) || nextPosn < 0 {
 			break
