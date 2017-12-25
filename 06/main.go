@@ -12,12 +12,14 @@ func main() {
 	input := "4	1	15	12	0	9	9	5	5	8	7	3	14	5	12	3"
 
 	fmt.Println("input: ", input)
-	fmt.Println("cycles:", cyclesBeforeRepeat(input))
+	fmt.Println("cycles:", findCycleLength(input))
 }
 
-func cyclesBeforeRepeat(input string) int {
+func findCycleLength(input string) int {
 	cycles := 0
 	history := make(map[string]int)
+	loopMarker := ""
+	loopPosn := 0
 
 	// Convert input to []int
 	var arr []int
@@ -32,15 +34,22 @@ func cyclesBeforeRepeat(input string) int {
 
 		// Check if we've seen this distribution before
 		key := makeKey(arr)
-		if _, found := history[key]; found {
-			fmt.Println("Duplicate:", key)
-			break
-		} else {
+		if _, found := history[key]; !found {
+			// Add markers for things we've seen
 			history[key] = 1
+		} else {
+			switch {
+			case loopMarker == "":
+				loopMarker = key
+				loopPosn = cycles
+				fmt.Println(key, loopPosn)
+			case key == loopMarker:
+				cycleLength := cycles - loopPosn
+				fmt.Println(key, cycles, cycleLength)
+				return cycleLength
+			}
 		}
 	}
-
-	return cycles
 }
 
 func balance(a []int) []int {

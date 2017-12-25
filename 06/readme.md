@@ -1,6 +1,7 @@
 Day 6: Memory Reallocation
 =====
 
+## Part 1
 A debugger program here is having an issue: it is trying to repair a memory reallocation routine, but it keeps getting stuck in an infinite loop.
 
 In this area, there are sixteen memory banks; each memory bank can hold any number of **blocks**. The goal of the reallocation routine is to balance the blocks between the memory banks.
@@ -24,3 +25,12 @@ Given the initial block counts in your puzzle input, **how many redistribution c
 
 #### Solution
 `6681`
+
+## Part 2
+Out of curiosity, the debugger would also like to know the size of the loop: starting from a state that has already been seen, how many block redistribution cycles must be performed before that same state is seen again?
+
+In the example above, `2 4 1 2` is seen again after four cycles, and so the answer in that example would be `4`.
+
+**How many cycles** are in the infinite loop that arises from the configuration in your puzzle input?
+
+#### Solution
