@@ -15,9 +15,14 @@ func main() {
 
 	for scanner.Scan() {
 		node := parseToTowerNode(scanner.Text())
-		// fmt.Println(node)
+		fmt.Println(node)
 		unsortedNodes[node.name] = node
 	}
+
+	// build tree with `azqje` as root
+	// rootNode := "tknk"
+
+	// do the recursive magic dealy
 
 	fmt.Println("Total nodes:", len(unsortedNodes))
 
@@ -29,13 +34,13 @@ func main() {
 	leaves := make(map[string]struct{})
 
 	for key, node := range unsortedNodes {
-		if node.children == nil {
+		if len(node.children) == 0 {
 			leaves[node.name] = struct{}{}
 			delete(unsortedNodes, key)
 		}
 	}
 
-	// fmt.Println("leaves:", leaves)
+	fmt.Println("leaves:", leaves)
 	fmt.Println("Num leaves:", len(leaves))
 
 	nextLevelNodes := make(map[string]struct{})
@@ -66,7 +71,7 @@ func main() {
 
 func (cn childNodes) contains(val string) bool {
 	for _, n := range cn {
-		if n == val {
+		if n.name == val {
 			return true
 		}
 	}
@@ -74,7 +79,7 @@ func (cn childNodes) contains(val string) bool {
 	return false
 }
 
-type childNodes []string
+type childNodes []towerNode
 
 type towerNode struct {
 	name     string
@@ -90,9 +95,12 @@ func parseToTowerNode(s string) towerNode {
 
 	// fmt.Println(s)
 
-	children := strings.Split(matches[0][4], ", ")
-	if children[0] == "" {
-		children = nil
+	childNames := strings.Split(matches[0][4], ", ")
+	var children childNodes
+	if childNames[0] != "" {
+		for _, name := range childNames {
+			children = append(children, towerNode{name, 0, childNodes{}})
+		}
 	}
 
 	return towerNode{
@@ -100,4 +108,8 @@ func parseToTowerNode(s string) towerNode {
 		weight:   weight,
 		children: children,
 	}
+}
+
+func buildTower(unallocatedNodes map[string]towerNode, root string) {
+	// lol
 }
