@@ -36,6 +36,26 @@ func Test_scoreGroups(t *testing.T) {
 			args: args{"{{<ab>},{<ab>},{<ab>},{<ab>}}`"},
 			want: 9,
 		}, {
+			name: "groups in garbage",
+			args: args{"{<{},{},{{}}>}"},
+			want: 1,
+		}, {
+			name: "complicated garbage",
+			args: args{"{<{o\"i!a,<{i<a>}"},
+			want: 1,
+		}, {
+			name: "simple cancel",
+			args: args{"{!{!}}"},
+			want: 1,
+		}, {
+			name: "unbalanced garbage",
+			args: args{"{<<<<>}"},
+			want: 1,
+		}, {
+			name: "canceled garbage end",
+			args: args{"{<{!>}>}"},
+			want: 1,
+		}, {
 			name: "cancel the cancelation",
 			args: args{"{{<!!>},{<!!>},{<!!>},{<!!>}}"},
 			want: 9,
