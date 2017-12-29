@@ -11,62 +11,23 @@ import (
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	unsortedNodes := make(map[string]towerNode)
+	unallocatedNodes := make(map[string]towerNode)
 
 	for scanner.Scan() {
 		node := parseToTowerNode(scanner.Text())
-		fmt.Println(node)
-		unsortedNodes[node.name] = node
+		// fmt.Println(node)
+		unallocatedNodes[node.name] = node
 	}
 
 	// build tree with `azqje` as root
-	// rootNode := "tknk"
+	rootName := "tknk"
+	// rootName := "azqje"
 
 	// do the recursive magic dealy
+	tower := buildTower(unallocatedNodes, rootName)
 
-	fmt.Println("Total nodes:", len(unsortedNodes))
+	printTower(tower)
 
-	// We can be lazy and ignore the whole jazz with weights.
-	// Identify the leaves as those with no children.
-	// Then identify those with leaves as children, progressing level
-	// by level until we get to the root.
-
-	leaves := make(map[string]struct{})
-
-	for key, node := range unsortedNodes {
-		if len(node.children) == 0 {
-			leaves[node.name] = struct{}{}
-			delete(unsortedNodes, key)
-		}
-	}
-
-	fmt.Println("leaves:", leaves)
-	fmt.Println("Num leaves:", len(leaves))
-
-	nextLevelNodes := make(map[string]struct{})
-	lastLevelNodes := leaves
-	level := 1
-
-	for len(unsortedNodes) > 1 {
-		fmt.Println("Processing nodes at level", level)
-		fmt.Println("Remaining:", len(unsortedNodes))
-
-		for nodeName := range lastLevelNodes {
-			for key, node := range unsortedNodes {
-				if node.children.contains(nodeName) {
-					// fmt.Println("Assigning", node)
-					nextLevelNodes[key] = struct{}{}
-					delete(unsortedNodes, key)
-				}
-			}
-		}
-
-		level++
-		lastLevelNodes = nextLevelNodes
-		nextLevelNodes = make(map[string]struct{})
-	}
-
-	fmt.Println("Root is", unsortedNodes)
 }
 
 func (cn childNodes) contains(val string) bool {
@@ -110,6 +71,43 @@ func parseToTowerNode(s string) towerNode {
 	}
 }
 
-func buildTower(unallocatedNodes map[string]towerNode, root string) {
-	// lol
+func buildTower(unallocatedNodes map[string]towerNode, root string) towerNode {
+	tower := unallocatedNodes[root]
+	populatedChildren := make(childNodes, len(tower.children))
+
+	// Add actual child nodes
+	for i, child := range tower.children {
+
+		child.weight = unallocatedNodes[child.name].weight
+
+		for _, grandchild := range unallocatedNodes[child.name].children {
+			child.children = append(child.children, buildTower(unallocatedNodes, grandchild.name))
+		}
+		// fmt.Println("Child:", child)
+		populatedChildren[i] = child
+	}
+
+	tower.children = populatedChildren
+
+	// fmt.Println("tower:", tower)
+
+	return tower
+}
+
+func printTower(t towerNode) {
+	formattedTower := printFormatTower(t, 0)
+	formattedTower = strings.Replace(formattedTower, "\n\n", "\n", -1)
+
+	fmt.Println(formattedTower)
+}
+
+func printFormatTower(t towerNode, offset int) string {
+	var nodeString string
+
+	nodeString += fmt.Sprintf("%s%s (%d):\n", strings.Repeat(" ", offset), t.name, t.weight)
+	for _, child := range t.children {
+		nodeString += fmt.Sprintf("%s%s\n", strings.Repeat(" ", offset), printFormatTower(child, offset+2))
+	}
+
+	return nodeString
 }
