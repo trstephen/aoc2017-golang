@@ -20,8 +20,14 @@ func main() {
 	}
 
 	// build tree with `azqje` as root
-	rootName := "tknk"
-	// rootName := "azqje"
+	var rootName string
+	smallRoot := "tknk"
+	bigRoot := "azqje"
+	if _, found := unallocatedNodes[smallRoot]; found {
+		rootName = smallRoot
+	} else {
+		rootName = bigRoot
+	}
 
 	// do the recursive magic dealy
 	tower := buildTower(unallocatedNodes, rootName)
@@ -104,10 +110,20 @@ func printTower(t towerNode) {
 func printFormatTower(t towerNode, offset int) string {
 	var nodeString string
 
-	nodeString += fmt.Sprintf("%s%s (%d):\n", strings.Repeat(" ", offset), t.name, t.weight)
+	nodeString += fmt.Sprintf("%s%d (%d):\n", strings.Repeat(" ", offset), t.fullWeight(), t.weight)
 	for _, child := range t.children {
 		nodeString += fmt.Sprintf("%s%s\n", strings.Repeat(" ", offset), printFormatTower(child, offset+2))
 	}
 
 	return nodeString
+}
+
+func (tn towerNode) fullWeight() int {
+	weight := tn.weight
+
+	for _, cn := range tn.children {
+		weight += cn.fullWeight()
+	}
+
+	return weight
 }
