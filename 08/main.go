@@ -21,8 +21,9 @@ type instruction struct {
 }
 
 var (
-	memory    = make(registers)
-	instrExpr = regexp.MustCompile(`^([\w]+) (inc|dec) (\-?[\d]+) if ([\w]+) (==|!=|>|>=|<|<=) (\-?[\d]+)$`)
+	memory           = make(registers)
+	instrExpr        = regexp.MustCompile(`^([\w]+) (inc|dec) (\-?[\d]+) if ([\w]+) (==|!=|>|>=|<|<=) (\-?[\d]+)$`)
+	highestMemoryVal = math.MinInt64
 )
 
 func main() {
@@ -34,6 +35,8 @@ func main() {
 
 	largestReg := memory.findLargest()
 	fmt.Printf("Largest: %s, %d\n", largestReg, memory[largestReg])
+
+	fmt.Println("High water mark for memory value:", highestMemoryVal)
 }
 
 func parseToInstruction(s string) instruction {
@@ -79,19 +82,21 @@ func applyInstruction(in instruction) {
 		conditionSatisfied = (conditionVal >= in.conditionAmt)
 	}
 
+	var newVal int
 	if conditionSatisfied {
 		switch in.targetOp {
 		case "inc":
-			memory[in.targetReg] = targetVal + in.targetAmt
+			newVal = targetVal + in.targetAmt
 		case "dec":
-			memory[in.targetReg] = targetVal - in.targetAmt
+			newVal = targetVal - in.targetAmt
+		}
+
+		memory[in.targetReg] = newVal
+		if newVal > highestMemoryVal {
+			highestMemoryVal = newVal
+			fmt.Println(in.targetReg, highestMemoryVal)
 		}
 	}
-
-	// fmt.Println(in)
-	// for reg, val := range memory {
-	// 	fmt.Printf("  %s: %d\n", reg, val)
-	// }
 }
 
 func (r registers) findLargest() string {
