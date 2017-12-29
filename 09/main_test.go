@@ -73,3 +73,43 @@ func Test_scoreGroups(t *testing.T) {
 		})
 	}
 }
+
+func Test_countGarbageChars(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "empty garbage group",
+			args: args{"{<>}"},
+			want: 0,
+		}, {
+			name: "simple group",
+			args: args{"{<12345>}"},
+			want: 5,
+		}, {
+			name: "garbage start as garbage",
+			args: args{"{<<<<>}"},
+			want: 3,
+		}, {
+			name: "cancel garbage end",
+			args: args{"{<{!>}>}"},
+			want: 2,
+		}, {
+			name: "complicated garbage",
+			args: args{"{<{o\"i!a,<{i<a>}"},
+			want: 10,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := countGarbageChars(tt.args.s); got != tt.want {
+				t.Errorf("countGarbageChars() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
