@@ -30,9 +30,10 @@ For example:
 - `se,sw,se,sw,sw` is 3 steps away (`s,s,sw`).
 
 #### Solution
-```
-map[nw:212 n:508 ne:0 se:0 s:0 sw:185]
-905, high
-508 + (212 - 185) = 535, low
-212 + (508 - 185) = 435, low
-```
+`720`
+
+## Part 2
+**How many steps away** is the **furthest** he ever got from his starting position?
+
+#### Solution
+`1485`
