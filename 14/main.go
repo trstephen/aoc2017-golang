@@ -3,50 +3,61 @@ package main
 import (
 	"container/ring"
 	"fmt"
+	"log"
 	"strings"
+)
+
+const (
+	gridRows = 128
+	gridCols = 128
+)
+
+var (
+	// Knot has things
+	sparseHash  *ring.Ring
+	skip        int
+	totalOffset int
+
+	// region removal things
+	grid [gridRows][gridCols]int
 )
 
 func main() {
 	seed := "ffayrhll"
-	usedSquareCount := 0
+	regionCount := 0
 
-	// To figure out how many ones are in each row we'll use a lookup
-	// for the hex digits of the hash.
-
-	onesCount := map[rune]int{
-		'0': 0, // 0x0000
-		'1': 1, // 0x0001
-		'2': 1, // 0x0010
-		'3': 2, // 0x0011
-		'4': 1, // 0x0100
-		'5': 2, // 0x0101
-		'6': 2, // 0x0110
-		'7': 3, // 0x0111
-		'8': 1, // 0x1000
-		'9': 2, // 0x1001
-		'a': 2, // 0x1010
-		'b': 3, // 0x1011
-		'c': 2, // 0x1100
-		'd': 3, // 0x1101
-		'e': 3, // 0x1110
-		'f': 4, // 0x1111
-	}
-
-	for i := 0; i < 128; i++ {
+	// 1. Populate a grid of []int where each row is a hash value
+	for i := 0; i < gridRows; i++ {
 		hash := computeDenseHash(fmt.Sprintf("%s-%d", seed, i))
-		for _, r := range hash {
-			usedSquareCount += onesCount[r]
+
+		if len(hash) != gridCols {
+			log.Panicf("Expected hash of length %d but got %d\n", gridCols, len(hash))
+		}
+
+		// Grid was initialized with all 0s so we just have to write 1s.
+		for j, r := range hash {
+			if r == '1' {
+				grid[i][j] = 1
+			}
+		}
+	}
+	fmt.Println("Hash grid created")
+
+	// 2. Start removing regions. Start top left and proceed through every element.
+	// When a region member is found (i.e. a 1), break grid iteration and find all
+	// elements of the region, overwriting them as 0 to prevent multi-counts.
+
+	for i := 0; i < gridRows; i++ {
+		for j := 0; j < gridCols; j++ {
+			if grid[i][j] == 1 {
+				regionCount++
+				removeRegion(coord{i, j})
+			}
 		}
 	}
 
-	fmt.Println("Used squares:", usedSquareCount)
+	fmt.Println("regions detected:", regionCount)
 }
-
-var (
-	sparseHash  *ring.Ring
-	skip        int
-	totalOffset int
-)
 
 func computeDenseHash(input string) string {
 	ringSize := 256
@@ -101,7 +112,7 @@ func computeDenseHash(input string) string {
 
 	denseHashString := make([]string, len(denseHash))
 	for i := 0; i < len(denseHashString); i++ {
-		denseHashString[i] = fmt.Sprintf("%02x", denseHash[i])
+		denseHashString[i] = fmt.Sprintf("%08b", denseHash[i])
 	}
 
 	return strings.Join(denseHashString, "")
@@ -131,4 +142,56 @@ func tieKnot(knotLength int) {
 
 	totalOffset += moveLength
 	skip++
+}
+
+type coord struct {
+	row, col int
+}
+
+func (c coord) North() coord {
+	if c.col == 0 {
+		return c
+	}
+
+	return coord{c.row, c.col - 1}
+}
+
+func (c coord) South() coord {
+	if c.col == gridCols-1 {
+		return c
+	}
+
+	return coord{c.row, c.col + 1}
+}
+
+func (c coord) West() coord {
+	if c.row == 0 {
+		return c
+	}
+
+	return coord{c.row - 1, c.col}
+}
+
+func (c coord) East() coord {
+	if c.row == gridRows-1 {
+		return c
+	}
+
+	return coord{c.row + 1, c.col}
+}
+
+func removeRegion(c coord) {
+	// Recursive base case~
+	if grid[c.row][c.col] == 0 {
+		return
+	}
+
+	// Remove this coord from the grid and region
+	grid[c.row][c.col] = 0
+
+	// Explor neighbors... Recursively!
+	removeRegion(c.North())
+	removeRegion(c.South())
+	removeRegion(c.West())
+	removeRegion(c.East())
 }
