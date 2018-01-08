@@ -11,14 +11,50 @@ import (
 
 func main() {
 	size := 16
+	iterations := int(1e9)
+	updateInterval := int(1e6)
+
 	dg := newDanceGroup(size)
+	var moves []danceMove
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		rawMoves := strings.Split(scanner.Text(), ",")
 		for _, rm := range rawMoves {
-			parseDanceMove(rm).applyTo(dg)
+			moves = append(moves, parseDanceMove(rm))
 		}
+	}
+
+	iterationHistory := make(map[string]int)
+	var seqHistory []string
+
+	// Stick the base case in history to make duplicate detection in the
+	// loop a little simpler.
+	iterationHistory[dg.toString()] = 0
+	seqHistory = append(seqHistory, dg.toString())
+
+	for i := 1; i < iterations; i++ {
+		for _, move := range moves {
+			move.applyTo(dg)
+		}
+
+		// Log progress
+		if i%(iterations/updateInterval) == 0 {
+			log.Printf("%02.1f%%: %d\n", float64(i/updateInterval), i)
+		}
+
+		if lastSeen, found := iterationHistory[dg.toString()]; found {
+			cycleLength := i - lastSeen
+			log.Printf("Found cycle with length %d on iteration %d starting with '%s'\n", cycleLength, i, dg.toString())
+
+			offset := iterations % cycleLength
+			log.Printf("Sequence at %d iteration and offset %d will be '%s'\n", iterations, offset, seqHistory[offset])
+
+			return
+		}
+
+		iterationHistory[dg.toString()] = i
+		seqHistory = append(seqHistory, dg.toString())
 	}
 
 	fmt.Println(dg.toString())
