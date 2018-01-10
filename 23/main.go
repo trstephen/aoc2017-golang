@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -38,6 +39,18 @@ func main() {
 	fmt.Println("Program stopped with state:", p.state)
 	fmt.Println("mul count:", p.mulCount)
 
+	// part 2
+	b := 84*100 + 100000
+	c := b + 17000
+	h := 0
+
+	for i := b; i < c+1; i += 17 {
+		if !isPrime(i) {
+			h++
+		}
+	}
+
+	fmt.Println("h ->", h)
 }
 
 func newProgram() *program {
@@ -155,4 +168,14 @@ func (j jnz) execute(p *program) {
 	}
 
 	p.incrementInstructionCounter(p.memory.getValue(j.val))
+}
+
+func isPrime(n int) bool {
+	for i := 2; i <= int(math.Floor(math.Sqrt(float64(n)))); i++ {
+		if n%i == 0 {
+			return false
+		}
+	}
+
+	return n > 1
 }

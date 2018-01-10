@@ -19,3 +19,32 @@ If you run the program (your puzzle input), **how many times is the `mul` instru
 
 #### Solution
 `6724`
+
+## Part 2
+Now, it's time to fix the problem.
+
+The **debug mode switch** is wired directly to register `a`. You flip the switch, **which makes register `a` now start at 1** when the program is executed.
+
+Immediately, the coprocessor begins to overheat. Whoever wrote this program obviously didn't choose a very efficient implementation. You'll need to **optimize the program** if it has any hope of completing before Santa needs that printer working.
+
+The coprocessor's ultimate goal is to determine the final value left in register `h` once the program completes. Technically, if it had that... it wouldn't even need to run the program.
+
+After setting register `a` to `1`, if the program were to run to completion, **what value would be left in register `h`**?
+
+#### Solution
+`903`
+
+This is a poorly worded prompt for "translate the pseudo-assembly into a program and run it."
+
+At a high level
+
+```
+c = b = 84
+
+b = b * 100 + 100000
+c = b + 17000
+
+for n <- [b,b+17..c+1]:
+    if not prime(n):
+        h++
+```
