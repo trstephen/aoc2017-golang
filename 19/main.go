@@ -14,6 +14,7 @@ type diagramFollower struct {
 	direction string
 	row, col  int
 	letters   string
+	stepCount int
 }
 
 func main() {
@@ -32,6 +33,7 @@ func main() {
 	}
 
 	fmt.Println("Recovered string:", f.letters)
+	fmt.Println("stepCount:", f.stepCount)
 }
 
 func (d diagram) newFollower() *diagramFollower {
@@ -93,6 +95,8 @@ func (df *diagramFollower) turn() {
 
 func (df *diagramFollower) walk() bool {
 	// fmt.Printf("(%03d, %03d) %s, %s\n", df.row, df.col, df.currentChar(), df.direction)
+
+	df.stepCount++
 
 	switch df.direction {
 	case DOWN:
